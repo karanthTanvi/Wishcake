@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Wishcake — a little cake, just for you</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='%231C1A17'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Great+Vibes&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F6F1E7; --cream-2:#EFE8DA; --ink:#1C1A17; --ink-2:#6B6358; --line:#1C1A17;
+  --hairline:#D8CFBF; --flame:#E8973A; --flame-soft:#F4C77E;
+  --serif:'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --sans:'Inter', system-ui, sans-serif;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --space-xs:8px; --space-sm:16px; --space-md:24px; --space-lg:40px; --space-xl:64px;
+  --flame-glow-size:24px;      /* glow LARGENESS — bigger = larger halo */
+  --flame-glow-strength:.5;    /* glow STRENGTH — higher = brighter/stronger (0–1) */
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html,body{margin:0; height:100%}
+body{font-family:var(--serif); color:var(--ink); background:var(--cream); overflow-x:hidden; position:relative; font-size:18px; font-style:italic}
+body::before{content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:radial-gradient(120% 80% at 50% -10%, #FCF8EF 0%, var(--cream) 60%)}
+button{font-family:inherit}
+/* italic is the body default, but keep the letterspaced uppercase labels upright */
+.btn, .btn .btxt, .topback, .howto .lbl{font-style:normal}
+.grain{position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.06; mix-blend-mode:multiply}
+.hidden{display:none !important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+.view{display:none; min-height:100dvh; flex-direction:column; align-items:center; justify-content:center; padding:var(--space-xl) var(--space-md); text-align:center; animation:fade .55s var(--ease)}
+.view.active{display:flex}
+@keyframes fade{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+
+h1{font-family:var(--serif); font-weight:600; font-size:clamp(28px,7vw,42px); line-height:1.12; letter-spacing:.005em; margin:0 0 12px}
+.script{font-family:var(--serif); font-style:italic; font-weight:500; color:var(--ink); line-height:1.05}
+.lede{font-size:18px; line-height:1.6; color:var(--ink-2); max-width:34ch; margin:0 auto var(--space-md); font-style:italic}
+.rule{width:54px; height:0; border-top:1.4px solid var(--ink); margin:var(--space-md) auto}
+
+/* ---------- buttons ---------- */
+.btn{position:relative; appearance:none; cursor:pointer; background:none; color:var(--ink);
+  font-family:var(--sans); font-weight:500; font-size:12px; letter-spacing:.26em; text-transform:uppercase;
+  border:1.2px solid var(--ink); border-radius:0; padding:18px 40px;
+  transition:color .35s ease, background-color .35s ease, transform .15s var(--ease)}
+.btn:hover,.btn:focus-visible{background:var(--ink); color:var(--cream); outline:none}
+.btn:focus-visible{box-shadow:0 0 0 3px var(--flame-soft)}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.32; cursor:default}
+.btn[disabled]:hover{background:none; color:var(--ink)}
+.btn .btxt{position:relative; z-index:1}
+.btn .corner{position:absolute; width:7px; height:7px; border-radius:50%; border:1px solid var(--ink); background:var(--cream)}
+.btn:hover .corner,.btn:focus-visible .corner{background:var(--ink)}
+.btn[disabled]:hover .corner{background:var(--cream)}
+.corner.tl{top:-4px;left:-4px}.corner.tr{top:-4px;right:-4px}.corner.bl{bottom:-4px;left:-4px}.corner.br{bottom:-4px;right:-4px}
+.btn.copy{padding:15px 22px; letter-spacing:.16em}
+
+/* ---------- intro (first page) ---------- */
+.rise{opacity:0; transform:translateY(14px); animation:rise .9s var(--ease) forwards}
+.d1{animation-delay:.05s}.d2{animation-delay:.4s}.d3{animation-delay:.55s}.d4{animation-delay:.7s}.d5{animation-delay:.85s}
+@keyframes rise{to{opacity:1; transform:none}}
+.eyebrow{font-family:var(--serif); font-style:italic; font-size:15px; font-weight:500;
+  letter-spacing:.04em; text-transform:none; color:var(--ink-2); margin-bottom:0px}
+
+/* ---------- wordmark ---------- */
+.wordmark{font-family:'Great Vibes', cursive; font-style:normal; font-weight:400; letter-spacing:normal; color:var(--ink); line-height:1; position:relative}
+.wordmark::before{content:""; display:inline-block; width:6px; height:6px; border-radius:50%;
+  background:var(--flame); box-shadow:0 0 7px var(--flame-soft); margin-right:.5em; vertical-align:middle; transform:translateY(-.06em)}
+#s-intro .wordmark{font-size:23px; margin-bottom:30px}
+.wordmark.r-mark{font-size:30px; color:var(--ink-2); margin-bottom:32px}
+.wordmark.r-mark::before{width:5px; height:5px}
+/* reveal footer / growth loop */
+.madewith{margin-top:38px; font-size:14px; font-style:italic; color:var(--ink-2); text-align:center}
+.madewith b{font-family:'Great Vibes', cursive; font-style:normal; font-weight:400; font-size:1.5em; color:var(--ink)}
+.madewith button{font:inherit; font-style:italic; color:var(--ink-2); background:none; border:none; cursor:pointer;
+  text-decoration:underline; text-underline-offset:3px; padding:2px 4px}
+.madewith button:hover{color:var(--ink)}
+
+.howto .lbl{font-family:var(--serif); font-size:16px; font-weight:500;
+  letter-spacing:0; text-transform:none; color:var(--ink)}
+
+/* intro cake — inline SVG so the flame flickers (own id, NOT .cake, to avoid forcing path fills) */
+#introCake{width:138px; margin-bottom:28px; overflow:visible}
+#introCake svg{display:block; width:100%; height:auto}
+
+.intro-h1{font-family:'Great Vibes', cursive; font-style:normal; font-weight:400; font-size:clamp(58px,13vw,92px); line-height:1.05; letter-spacing:normal; margin-bottom:18px}
+.lede em{font-style:italic; color:var(--ink)}
+#s-intro .lede{max-width:480px}
+.howto{display:flex; align-items:center; gap:18px; margin:6px 0 40px; flex-wrap:wrap; justify-content:center}
+.howto .step{display:flex; align-items:baseline; gap:9px}
+.howto .num{font-size:19px; font-style:italic; color:var(--flame)}
+.howto .lbl{font-family:var(--sans); font-size:11.5px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--ink)}
+.howto .sep{width:26px; height:1px; background:var(--hairline)}
+@media(max-width:420px){.howto .sep{display:none} .howto{gap:14px 22px}}
+@media (prefers-reduced-motion:reduce){.rise{animation:none; opacity:1; transform:none}}
+.linklike{background:none; border:none; cursor:pointer; color:var(--ink-2); font-family:var(--serif);
+  font-style:italic; font-size:16px; text-decoration:underline; text-underline-offset:3px; padding:6px}
+.linklike:hover{color:var(--ink)}
+.btnrow{display:flex; gap:14px; align-items:center; justify-content:center; flex-wrap:wrap; margin-top:var(--space-lg)}
+.topback{background:none; border:none; cursor:pointer;
+  font-family:var(--sans); font-size:12px; font-weight:500; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink-2); padding:0 4px}
+.topback:hover{color:var(--ink)}
+
+/* ---------- flame flicker ---------- */
+/* Wrap both flame <g> groups in <g class="flame"> inside every CakeN.svg.
+   Scoped to the sender preview screens so it never fights the blow-stage JS. */
+.flame{transform-box:fill-box; transform-origin:center}
+#s-intro .flame, #s-cake .flame, #s-share .flame{
+  animation:flameFlip 600ms steps(1, end) infinite;
+}
+@keyframes flameFlip{
+  0%,     50%  {transform:scaleX(1)}
+  50.01%, 100% {transform:scaleX(-1)}
+}
+@media (prefers-reduced-motion:reduce){
+  #s-intro .flame, #s-cake .flame, #s-share .flame{animation:none}
+}
+
+/* ---------- cake float ---------- */
+/* add class="float" to any cake element you want to bob */
+.float{animation:cakeFloat 3.2s ease-in-out infinite}
+@keyframes cakeFloat{
+  0%,100%{transform:translateY(0)}
+  50%    {transform:translateY(-10px)}
+}
+@media (prefers-reduced-motion:reduce){ .float{animation:none} }
+
+/* ---------- step dots ---------- */
+.steps{display:flex; gap:10px; margin-bottom:var(--space-lg)}
+.steps i{width:9px; height:9px; border-radius:50%; border:1.4px solid var(--ink); background:transparent; opacity:.45; transition:.3s}
+.steps i.on{opacity:1; background:var(--ink)}
+
+/* ---------- letter ---------- */
+.letter-wrap{width:100%; max-width:480px}
+.letter{position:relative; background:var(--cream-2); border:1.4px solid var(--ink); border-radius:0;
+  padding:34px 30px 30px 52px; text-align:left; line-height:38px;
+  background-image:repeating-linear-gradient(transparent, transparent 37px, rgba(27,27,27,.16) 38px)}
+.letter::before{content:""; position:absolute; top:14px; bottom:14px; left:30px; width:1px; background:rgba(27,27,27,.28)}
+.letter .ed{outline:none; min-height:38px; color:var(--ink); font-style:italic}
+.letter .greet{font-weight:600; font-size:19px}
+.letter .body{margin:6px 0; font-size:18px; min-height:114px}
+.letter .sign{font-style:italic; font-size:22px; margin-top:10px}
+.letter .signname{margin-top:0}
+.letter.readonly .sign{white-space:pre-line}
+.ed[data-ph]:empty:before{content:attr(data-ph); color:var(--ink-2); opacity:.6}
+.letter.readonly .ed{cursor:default}
+
+/* ---------- share ---------- */
+.linkbox{display:flex; gap:10px; width:100%; max-width:440px; margin:18px auto 6px}
+.linkbox input{flex:1; min-width:0; font-family:var(--serif); font-size:15px; color:var(--ink-2);
+  padding:13px 16px; border-radius:0; border:1.4px solid var(--ink); background:var(--cream-2)}
+.copied{font-size:14px; height:18px; margin-top:8px; letter-spacing:.05em; text-transform:uppercase}
+
+/* ---------- candle stage ---------- */
+#r-blow{padding:0; position:relative; overflow:hidden}
+.stage{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; overflow:hidden}
+.cakehost{position:relative; transition:transform 1.2s var(--ease)}
+.cakehost svg{display:block; filter:drop-shadow(0 24px 24px rgba(27,27,27,.12))}
+/* extra glow around the flame (blow stage) — tune via --flame-glow-* above */
+#flameWrap{filter:
+  drop-shadow(0 0 var(--flame-glow-size) rgba(255,206,107, var(--flame-glow-strength)))
+  drop-shadow(0 0 calc(var(--flame-glow-size) * 2) rgba(255,176,64, calc(var(--flame-glow-strength) * .6)));}
+
+.coach{position:fixed; left:0; right:0; bottom:0; padding:72px 20px calc(30px + env(safe-area-inset-bottom));
+  display:flex; flex-direction:column; align-items:center; gap:18px;
+  background:linear-gradient(transparent, var(--cream) 18%); z-index:5}
+.coach .hint{font-size:19px; color:var(--ink); text-align:center; font-style:italic}
+.coach .hint b{font-style:italic; font-weight:600}
+.bar{width:min(340px,82vw); height:14px; border-radius:0; background:transparent; border:1.4px solid var(--ink); padding:2px}
+.bar i{display:block; height:100%; width:0%; background:var(--ink); transition:width .08s linear}
+.hold{touch-action:none; user-select:none}
+/* coach is present during the reveal, but its message + bar fade in only after the zoom */
+#blowCoach .hint, #blowCoach .bar, #blowCoach .keyhint{transition:opacity .5s var(--ease)}
+#blowCoach.pending .hint, #blowCoach.pending .bar, #blowCoach.pending .keyhint{opacity:0; pointer-events:none}
+.keyhint:empty{display:none}
+/* lighter fallback line at the very bottom (camera path only) */
+.keyhint{margin:2px 0 0; font-size:13px; font-style:italic; color:var(--ink-2); opacity:.55}
+
+/* ---------- reveal ---------- */
+#r-reveal{display:none; flex-direction:column; align-items:center; justify-content:center; min-height:100dvh; padding:40px 20px}
+#r-reveal.show{display:flex; animation:fade 1s var(--ease)}
+.revealpair{display:flex; align-items:center; justify-content:center; gap:clamp(20px,5vw,72px); flex-wrap:wrap; width:100%; max-width:1140px}
+.revealcake{width:min(460px,90vw); opacity:0; transform:translateY(24px) scale(.98); transition:opacity 1.2s var(--ease), transform 1.2s var(--ease)}
+.revealcake.in{opacity:1; transform:none}
+.revealcake img{width:100%; height:auto; display:block}
+.reveal-letter{width:min(420px,90vw); margin:0; opacity:0; transform:translateY(30px); transition:opacity 1s var(--ease) .25s, transform 1s var(--ease) .25s}
+.reveal-letter.in{opacity:1; transform:none}
+.reveal-letter .letter{min-height:min(38vh,360px); padding:26px 24px 24px 44px; line-height:32px;
+  background-image:repeating-linear-gradient(transparent, transparent 31px, rgba(27,27,27,.16) 32px)}
+.reveal-letter .greet{font-size:18px}
+.reveal-letter .body{font-size:16px; min-height:0; margin:6px 0}
+.reveal-letter .sign{font-size:18px; margin-top:14px; text-align:right}
+/* gentle opposing sway */
+.sway{transform-origin:center}
+.sway-a{animation:swayA 6s ease-in-out infinite}
+.sway-b{animation:swayB 6.6s ease-in-out infinite}
+@keyframes swayA{0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(-1deg)}}
+@keyframes swayB{0%,100%{transform:rotate(3deg)}  50%{transform:rotate(1deg)}}
+@media (prefers-reduced-motion:reduce){ .sway-a,.sway-b{animation:none; transform:rotate(0)} }
+
+/* ---------- permission ---------- */
+/* ---------- permission dialog (centered modal) ---------- */
+#permGate{position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  padding:24px; background:rgba(28,26,23,.15); z-index:6}
+.permcard{display:flex; flex-direction:column; align-items:center; text-align:center; gap:22px;
+  background:var(--cream-2); border:1.4px solid var(--ink); border-radius:0;
+  padding:40px 34px; width:100%; max-width:380px}
+.permcard .ico svg{width:40px; height:auto; display:block}
+.permcard .copy{display:flex; flex-direction:column; align-items:center; gap:8px}
+.permcard h2{font-family:var(--serif); font-weight:600; font-size:25px; line-height:1.2; margin:0}
+.permcard .copy p{font-size:16px; line-height:1.55; color:var(--ink-2); margin:0; max-width:32ch}
+.permcard .acts{display:flex; flex-direction:column; gap:8px; width:100%}
+.permcard .acts .btn{width:100%}
+/* secondary action: no border, no corner dots */
+.btn.ghost{border-color:transparent; background:none; color:var(--ink-2); padding:13px 20px}
+.btn.ghost:hover,.btn.ghost:focus-visible{background:none; color:var(--ink); box-shadow:none}
+.btn.ghost .corner{display:none}
+
+/* ---------- camera setup status (centered) ---------- */
+#camStatus{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; padding:24px; z-index:6}
+.statuscard{display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center}
+.statuscard p{margin:0; font-size:18px; font-style:italic; color:var(--ink)}
+.spinner{width:30px; height:30px; border-radius:50%; border:2px solid var(--hairline); border-top-color:var(--ink); animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.statuscard .check{display:none; width:30px; height:30px}
+#camStatus.done .spinner{display:none}
+#camStatus.done .check{display:block}
+
+.confetti{position:fixed; top:0; left:0; z-index:8; pointer-events:none; opacity:0; will-change:transform,opacity}
+@keyframes confettiFall{
+  0%  { transform:translate3d(0,-12vh,0) rotate(0); opacity:0 }
+  8%  { opacity:1 }
+  88% { opacity:1 }
+  100%{ transform:translate3d(var(--dx),112vh,0) rotate(var(--rot)); opacity:0 }
+}
+
+@media (prefers-reduced-motion: reduce){*{animation-duration:.001ms !important; transition-duration:.18s !important}}
+
+#s-cake, #s-letter{height:100dvh; min-height:0; overflow:hidden; justify-content:space-between; padding:var(--space-lg) var(--space-md)}
+#s-cake h1, #s-letter h1{margin:0; font-style:italic}
+#s-cake .btnrow, #s-letter .btnrow, .cakepicker{margin:0}
+.headtop .steps{margin:0}
+.cakehead{display:flex; flex-direction:column; align-items:center; width:100%}
+.headtop{position:relative; display:flex; align-items:center; justify-content:center; width:100%; min-height:20px; margin-bottom:var(--space-md)}
+.headtop .topback{position:absolute; left:0; top:50%; transform:translateY(-50%)}
+#s-letter .letter-wrap{width:max(320px,60vw); max-width:96vw}
+#s-letter .letter{display:flex; flex-direction:column; height:60vh; min-height:320px; overflow:auto;
+  padding:40px clamp(28px,4vw,56px) 34px clamp(48px,6vw,72px); line-height:42px;
+  background-image:repeating-linear-gradient(transparent, transparent 41px, rgba(27,27,27,.16) 42px)}
+#s-letter .letter .ed{font-size:clamp(16px,1.5vw,21px); font-weight:500; font-style:italic}
+#s-letter .letter .body{min-height:0; margin:6px 0}
+#s-letter .letter .sign{margin-top:auto; text-align:right; padding-bottom:6px}
+#s-letter .letter .signtop{padding-bottom:0}
+#s-letter .letter .signname{margin-top:0}
+.cakepicker{display:flex; align-items:flex-start; justify-content:center; gap:clamp(30px,10vw,120px); width:100%; max-width:1100px}
+.cakecol{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:clamp(12px,2.6vh,28px)}
+/* hero is now a div holding an inline svg; overflow:hidden clips the cover-crop */
+.cakehero{height:min(48vh,460px); width:auto; aspect-ratio:.64; max-width:48vw; object-fit:cover; object-position:50% 100%; margin:0; overflow:hidden}
+.cakethumb{background:none; border:none; padding:4px; cursor:pointer; opacity:.6;transition:opacity .2s var(--ease), transform .2s var(--ease)}
+.cakethumb img{height:min(15.5vh,170px); width:auto; display:block; pointer-events:none}
+.cakethumb:hover{opacity:.9; transform:translateY(-3px)}
+.cakethumb.sel{opacity:1}
+@media(max-width:640px){ .cakehero{max-width:42vw} .cakethumb img{height:min(13vh,130px)} }
+
+/* ---------- share (ready) page ---------- */
+#s-share{height:100dvh; min-height:0; overflow:hidden; justify-content:space-between; padding:var(--space-lg) var(--space-md)}
+#s-share h1{margin:0; font-style:italic}
+#s-share .btnrow{margin:0}
+.sharestack{display:flex; flex-direction:column; align-items:center; gap:clamp(32px,6vh,72px); width:100%; max-width:560px}
+.linkgroup{display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-sm); width:fit-content; max-width:100%}
+.linkgroup .lede{margin:0; max-width:none; text-align:center; width:100%}
+.linkgroup .linkbox{margin:0; width:min(680px,92vw); max-width:none}
+.readypair{display:flex; align-items:center; justify-content:center; gap:clamp(16px,10vw,100px)}
+.ready-cake{height:min(40vh,380px); width:auto; transform:rotate(-5deg) !important; filter:drop-shadow(0 14px 22px rgba(27,27,27,.12))}
+.ready-cake svg{display:block; height:100%; width:auto}
+.ready-letter{width:min(340px,46vw); transform:rotate(4deg)}
+.ready-letter .letter{display:flex; flex-direction:column; min-height:min(38vh,360px); padding:24px 22px 22px 40px; line-height:30px;
+  background-image:repeating-linear-gradient(transparent, transparent 29px, rgba(27,27,27,.16) 30px)}
+.ready-letter .letter::before{top:12px; bottom:12px; left:26px}
+.ready-letter .greet{font-size:17px}
+.ready-letter .body{font-size:16px; min-height:0; margin:4px 0}
+.ready-letter .sign{font-size:17px; margin-top:auto; text-align:right}
+.copylink{background:none; border:none; cursor:pointer; font-family:var(--serif); font-style:italic;
+  font-size:16px; color:var(--ink-2); text-decoration:underline; text-underline-offset:3px; padding:6px 12px;
+  white-space:nowrap; min-width:84px; text-align:center; flex:0 0 auto}
+.copylink:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+<svg class="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><filter id="paper"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#paper)"/></svg>
+
+<!-- ===================== SENDER ===================== -->
+<section id="s-intro" class="view">
+  <!-- <div class="wordmark rise d1">Wishcake</div> -->
+  <div class="float">
+    <div class="rise d1 " id="introCake" role="img" aria-label="Birthday cake"></div>
+  </div>
+  
+
+  <h1 class="intro-h1 rise d2">Wishcake</h1>
+  <p class="lede rise d3">Pick a cake, write a little letter, and send a link. They'll make a wish, blow out the candle, and read your note.</p>
+  <div class="btnrow"><button class="btn rise d4" data-go="s-cake">Pick a cake</button></div>
+</section>
+
+<section id="s-cake" class="view ">
+  <header class="cakehead ">
+    <div class="headtop">
+      <button class="topback" data-go="s-intro">← Back</button>
+      <div class="steps rise d1"><i class="on"></i><i></i><i></i></div>
+    </div>
+    <h1 class="rise d2">Pick their favourite cake</h1>
+  </header>
+  <div class="cakepicker">
+    <div class="cakecol rise d3" id="cakeColL"></div>
+    <div class="float">
+          <div id="cakeHero" class="cakehero rise d4 " role="img" aria-label="Selected cake"></div>
+    </div>
+    <div class="cakecol rise d5" id="cakeColR"></div>
+  </div>
+  <div class="btnrow rise d6">
+    <button class="btn" id="cake-next" disabled data-go="s-letter">Next</button>
+  </div>
+</section>
+
+<section id="s-letter" class="view">
+  <header class="cakehead">
+    <div class="headtop">
+      <button class="topback" data-go="s-cake">← Back</button>
+      <div class="steps rise d1"><i></i><i class="on"></i><i></i></div>
+    </div>
+    <h1 class="rise d2">Write something sweet</h1>
+  </header>
+  <div class="letter-wrap">
+    <div class="letter rise d3" id="letter-edit">
+      <div class="ed greet rise d3" contenteditable="true" data-ph="Dear Alex," data-max="26"></div>
+      <div class="ed body rise d4" contenteditable="true" data-ph="Wishing you the brightest, happiest birthday. Thank you for being exactly you. Here's a little cake to wish on, with hopes that this year brings you every good thing." data-max="240"></div>
+      <div class="ed sign signtop rise d5" id="sign-top" contenteditable="true" data-ph="With love," data-max="15"></div>
+      <div class="ed sign signname rise d5" id="sign-name" contenteditable="true" data-ph="Sam" data-max="15"></div>
+    </div>
+  </div>
+  <div class="btnrow rise d6">
+    <button class="btn" id="letter-next" data-go="s-share">Create link</button>
+  </div>
+</section>
+
+<section id="s-share" class="view">
+  <header class="cakehead">
+    <div class="headtop">
+      <button class="topback" data-go="s-letter">← Back</button>
+    </div>
+    <h1 class="rise d1">Yayy! It's ready...</h1>
+  </header>
+
+  <div class="sharestack">
+    <div class="readypair">
+      <div class="float">
+              <div id="shareCake" class="ready-cake rise d2" role="img" aria-label="Your cake"></div>
+      </div>
+      <div class="ready-letter">
+        <div class="float">
+          <div class="letter readonly rise d2">
+          <div class="ed greet" id="sh-greet"></div>
+          <div class="ed body" id="sh-body"></div>
+          <div class="ed sign" id="sh-sign"></div>
+        </div>
+        </div>
+        
+      </div>
+    </div>
+
+    <div class="linkgroup rise d3">
+      <p class="lede">Copy the link, or tap share to send them a little surprise.</p>
+      <div class="linkbox">
+        <input id="sharelink" readonly value="" aria-label="Share link" />
+        <button class="copylink" id="copybtn">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="btnrow rise d4">
+    <button class="btn" id="sharebtn">Share</button>
+  </div>
+</section>
+
+<!-- ===================== RECIPIENT ===================== -->
+<section id="r-open" class="view">
+  <!-- <div class="wordmark r-mark rise d1">Wishcake</div> -->
+  <div class="script" id="from-name" style="font-size:clamp(32px,9vw,52px)">Someone</div>
+  <h1 style="margin-top:6px">has a surprise for you</h1>
+  <div class="btnrow"><button class="btn" id="open-btn">Tap to see</button></div>
+</section>
+
+<section id="r-blow" class="view">
+  <div class="stage" id="stage"><div class="cakehost" id="cakeHost"></div></div>
+
+  <div id="permGate">
+    <div class="permcard">
+      <div class="ico" aria-hidden="true">
+        <svg viewBox="0 0 44 44" fill="none" stroke="#1b1b1b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="13" width="34" height="24" rx="2"/>
+          <path d="M15 13l3-4h8l3 4"/>
+          <circle cx="22" cy="25" r="6.5"/>
+        </svg>
+      </div>
+      <div class="copy">
+        <h2>Allow camera access</h2>
+        <p>Your privacy is fully protected. This site does not collect, save, track, or send any data. </p>
+      </div>
+      <div class="acts">
+        <button class="btn" id="allowCam">Allow access</button>
+        <button class="btn ghost" id="useHold">Don't allow</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="camStatus" class="hidden" aria-live="polite">
+    <div class="statuscard">
+      <div class="spinner" aria-hidden="true"></div>
+      <svg class="check" viewBox="0 0 24 24" fill="none" stroke="#1C1A17" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
+      <p id="camStatusText">Setting up the camera…</p>
+    </div>
+  </div>
+
+  <div class="coach hidden" id="blowCoach">
+    <p class="hint" id="blowHint">Pucker up and <b>blow</b></p>
+    <div class="bar"><i id="barFill"></i></div>
+    <button class="btn hold hidden" id="holdBtn">Press &amp; hold to blow</button>
+    <p class="keyhint" id="keyHint"></p>
+  </div>
+</section>
+
+<section id="r-reveal">
+  <div class="revealpair">
+    <div class="revealcake" id="revealcake"><div class="sway sway-a"><img id="reveal-img" alt="Birthday cake with a happy birthday message" /></div></div>
+    <div class="reveal-letter letter-wrap" id="revealLetter">
+      <div class="sway sway-b">
+        <div class="letter readonly">
+          <div class="ed greet" id="r-greet"></div>
+          <div class="ed body" id="r-body"></div>
+          <div class="ed sign" id="r-sign"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="madewith">Made with <b>Wishcake</b> · <button id="makeOwn">make your own</button></p>
+</section>
+
+<video id="cam" playsinline autoplay muted class="hidden" width="160" height="120"></video>
+
+<script type="module">
+/* =======================================================================
+   Real-flame detection + working pout/blow logic (unchanged)
+   ======================================================================= */
+const SVGNS = 'http://www.w3.org/2000/svg';
+const FLAME_HEX = new Set(['#FDED80', '#FCDA75', '#FBAF50']);
+const ORB_HEX = '#FFD502';
+const ASSET   = (n)=>`assets/Cake${n}.svg`;
+const ASSET_R = (n)=>`assets/CakeR${n}.svg`;
+const CAKE_W  = 'min(380px, 86vw)';
+const CAKE_H  = 'min(54vh, 520px)';   // size by height (like the hero) so the whole cake always fits — BIGGER = raise this
+const BLOW_MS = 1500;
+const BLOW_THRESH = 0.1;     // mouth-funnel score that counts as blowing (higher = harder to trigger, lower = easier)
+
+const $ = (s)=>document.querySelector(s);
+const views = [...document.querySelectorAll('.view')];
+function show(id){ views.forEach(v=>v.classList.toggle('active', v.id===id)); window.scrollTo(0,0); }
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const delay = (ms)=> new Promise(r=>setTimeout(r, ms));
+const withTimeout = (p, ms)=> Promise.race([p, new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')), ms))]);
+
+const state = { cake:1, greeting:'', body:'', sign:'' };
+
+const incoming = decodeHash();
+if(incoming){ startRecipient(incoming); }
+else{ buildSender(); show('s-intro'); }
+
+document.querySelectorAll('[data-go]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    if(b.id==='cake-next' && !state.cake) return;
+    if(b.id==='letter-next') captureLetter();
+    if(b.dataset.go==='s-share') buildLink();
+    show(b.dataset.go);
+  });
+});
+
+/* give every button the corner-dot frame; wrap label so text changes don't drop the dots */
+function setLbl(b,t){ const l=b.querySelector('.btxt'); (l||b).textContent=t; }
+function decorateButtons(){
+  document.querySelectorAll('.btn').forEach(b=>{
+    if(b.querySelector('.btxt')) return;
+    const s=document.createElement('span'); s.className='btxt';
+    while(b.firstChild) s.appendChild(b.firstChild);
+    b.appendChild(s);
+    for(const p of ['tl','tr','bl','br']){ const c=document.createElement('span'); c.className='corner '+p; b.appendChild(c); }
+  });
+}
+decorateButtons();
+
+/* ---------------------------------------------------------------------
+   Inject a cake SVG inline (instead of <img>) so its .flame group can be
+   animated by our page CSS. mode controls how the inner svg fills its box:
+     'width'  -> fixed-width box, natural height   (intro)
+     'cover'  -> fill + crop, bottom-anchored      (picker hero)
+     'height' -> fixed-height box, natural width   (share preview)
+   The data-token guard stops a slow fetch from overwriting a newer pick.
+--------------------------------------------------------------------- */
+/* Every CakeN.svg shares the same Figma-exported ids (filters, gradients…).
+   Inline, those ids collide and url(#…) refs resolve to the wrong element —
+   that's the random black-speckled flame. Rename ids per injection. */
+let __cakeUID = 0;
+function uniquifyIds(svg){
+  const ids = svg.querySelectorAll('[id]');
+  if(!ids.length) return;
+  const uid = 'ck' + (++__cakeUID);
+  const map = new Map();
+  ids.forEach(node=>{
+    const old = node.getAttribute('id');
+    const neu = old + '__' + uid;
+    map.set(old, neu);
+    node.setAttribute('id', neu);
+  });
+  const swapUrl = (v)=> v.replace(/url\(\s*['"]?#([^'")\s]+)['"]?\s*\)/g,
+    (m,id)=> map.has(id) ? `url(#${map.get(id)})` : m);
+  [svg, ...svg.querySelectorAll('*')].forEach(node=>{
+    for(const a of Array.from(node.attributes)){
+      if(a.value.indexOf('url(') !== -1){
+        const nv = swapUrl(a.value);
+        if(nv !== a.value) node.setAttribute(a.name, nv);
+      }
+      if((a.name === 'href' || a.name === 'xlink:href') && a.value.charAt(0) === '#'){
+        const id = a.value.slice(1);
+        if(map.has(id)) node.setAttribute(a.name, '#' + map.get(id));
+      }
+    }
+  });
+}
+
+async function injectCake(el, n, mode){
+  const token = Date.now() + ':' + Math.random();
+  el.dataset.token = token;
+  let svgText;
+  try{ svgText = await (await fetch(ASSET(n))).text(); }
+  catch(e){ el.innerHTML = `<img src="${ASSET(n)}" alt="Cake ${n}" style="width:100%;height:100%;object-fit:contain">`; return; }
+  if(el.dataset.token !== token) return;            // superseded by a newer call
+  el.innerHTML = svgText;
+  const svg = el.querySelector('svg');
+  if(!svg) return;
+  uniquifyIds(svg);                                  // prevent cross-cake id collisions
+  if(!svg.getAttribute('viewBox')){
+    const w = parseFloat(svg.getAttribute('width')), h = parseFloat(svg.getAttribute('height'));
+    if(w && h) svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  }
+  svg.removeAttribute('width'); svg.removeAttribute('height');
+  svg.style.display = 'block';
+  if(mode === 'cover'){
+    svg.setAttribute('preserveAspectRatio', 'xMidYMax slice'); // = object-fit:cover + object-position:50% 100%
+    svg.style.width = '100%'; svg.style.height = '100%';
+  }else if(mode === 'height'){
+    svg.style.height = '100%'; svg.style.width = 'auto';
+  }else{ // 'width'
+    svg.style.width = '100%'; svg.style.height = 'auto';
+  }
+}
+
+/* =====================  SENDER  ===================== */
+function buildSender(){
+  const colL = $('#cakeColL'), colR = $('#cakeColR'), hero = $('#cakeHero');
+
+  injectCake($('#introCake'), 6, 'width');          // intro always shows Cake6
+
+  const pick = (n)=>{
+    state.cake = n;
+    injectCake(hero, n, 'cover');
+    document.querySelectorAll('.cakethumb').forEach(x=>x.classList.toggle('sel', +x.dataset.n===n));
+    $('#cake-next').disabled = false;
+  };
+  for(let n=1;n<=6;n++){
+    const c = document.createElement('button');
+    c.type='button'; c.className='cakethumb'; c.dataset.n=n; c.setAttribute('aria-label','Cake '+n);
+    c.innerHTML = `<img src="${ASSET(n)}" alt="Cake ${n}" loading="lazy">`;  // thumbnails stay as <img>
+    c.onclick = ()=> pick(n);
+    (n<=3 ? colL : colR).appendChild(c);
+  }
+  pick(state.cake || 1);
+  document.querySelectorAll('#letter-edit .ed').forEach(el=>{
+    const max = +el.dataset.max || 0;
+    const tidy=()=>{ if(el.textContent.trim()==='') el.innerHTML=''; };
+    el.addEventListener('input', ()=>{
+      if(max && el.textContent.length > max){
+        el.textContent = el.textContent.slice(0, max);
+        const r=document.createRange(); r.selectNodeContents(el); r.collapse(false);
+        const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      }
+      tidy();
+    });
+    el.addEventListener('blur', tidy);
+  });
+}
+function captureLetter(){
+  state.greeting = ($('#letter-edit .greet').textContent.trim()) || $('#letter-edit .greet').dataset.ph;
+  state.body     = ($('#letter-edit .body').textContent.trim())  || $('#letter-edit .body').dataset.ph;
+  state.signTop  = ($('#sign-top').textContent.trim())  || $('#sign-top').dataset.ph;
+  state.signName = ($('#sign-name').textContent.trim()) || $('#sign-name').dataset.ph;
+  state.sign     = state.signTop + '\n' + state.signName;   // two lines
+}
+function senderName(sign){ return (sign||'').replace(/^\s*(with\s+love|love|from|yours|xoxo)[,\s]*/i,'').trim() || 'Someone'; }
+function buildLink(){
+  captureLetter();
+  const hash = '#g=' + b64encode(JSON.stringify({ c:state.cake, g:state.greeting, b:state.body, s:state.signTop, s2:state.signName }));
+  $('#sharelink').value = location.origin + location.pathname + hash;
+  $('#copybtn').textContent='Copy';
+  injectCake($('#shareCake'), state.cake, 'height');
+  $('#sh-greet').textContent = state.greeting;
+  $('#sh-body').textContent  = state.body;
+  $('#sh-sign').textContent  = state.sign;
+}
+$('#copybtn').addEventListener('click', async ()=>{
+  const url = $('#sharelink').value;
+  try{ await navigator.clipboard.writeText(url); }catch{ const i=$('#sharelink'); i.select(); document.execCommand('copy'); }
+  $('#copybtn').textContent='Copied';
+});
+$('#sharebtn').addEventListener('click', async ()=>{
+  const url = $('#sharelink').value;
+  if(navigator.share){
+    try{ await navigator.share({ title:"Wishcake", text:"I made you a little cake. Open it!", url }); }catch(e){}
+  }else{
+    try{ await navigator.clipboard.writeText(url); }catch{}
+    setLbl($('#sharebtn'),'Link copied');
+  }
+});
+
+/* =====================  RECIPIENT  ===================== */
+function startRecipient(data){
+  Object.assign(state, data);
+  $('#from-name').textContent = (data.signName||'').trim() || senderName(data.signTop||data.sign);
+  $('#reveal-img').src = ASSET_R(data.cake);
+  $('#r-greet').textContent = data.greeting;
+  $('#r-body').textContent  = data.body;
+  $('#r-sign').textContent  = data.sign;
+  show('r-open');
+}
+$('#open-btn').addEventListener('click', async ()=>{ show('r-blow'); await enterBlow(); });
+/* reveal-screen growth loop: start your own (drop the gift hash, reload into the sender flow) */
+{ const mo = document.getElementById('makeOwn'); if(mo) mo.addEventListener('click', ()=>{ location.href = location.origin + location.pathname; }); }
+
+let flameWrap=null, orbEl=null, fcx=0, fby=0;
+let cakeShown=false, zoomed=false, flameVX=0, flameVY=0;
+async function enterBlow(){
+  extinguished=false; blowMode=false; blowProgress=0; poutStrength=0; holdActive=false; holdEnabled=false; holdPointerEnabled=false; lastPout=0; lastFaceTs=0; lastDetectTs=0;
+  if(blowRaf){ cancelAnimationFrame(blowRaf); blowRaf=null; }
+  stopSensors();
+  flameWrap=null; orbEl=null;
+  $('#permGate').classList.remove('hidden'); $('#blowCoach').classList.add('hidden'); $('#blowCoach').classList.remove('pending');
+  $('#keyHint').textContent='';
+  $('#camStatus').classList.add('hidden'); $('#camStatus').classList.remove('done');
+  $('#holdBtn').classList.add('hidden'); $('#barFill').style.width='0%';
+  $('#blowHint').innerHTML='Make a wish…';
+  $('#r-blow').style.opacity=''; $('#r-reveal').classList.remove('show');
+  $('#revealcake').classList.remove('in'); $('#revealLetter').classList.remove('in');
+
+  cakeShown = false; zoomed = false;
+  const stage = $('#stage');                          // hidden until it slides in
+  stage.style.transition = 'none';
+  stage.style.opacity = '0';
+
+  const host = $('#cakeHost'); host.style.transform='';
+  try{ host.innerHTML = await (await fetch(ASSET(state.cake))).text(); }
+  catch(e){ host.innerHTML = `<img src="${ASSET(state.cake)}" style="width:${CAKE_W}">`; }
+
+  const svg = host.querySelector('svg');
+  if(svg){
+    if(!svg.getAttribute('viewBox')){
+      const w=parseFloat(svg.getAttribute('width')), h=parseFloat(svg.getAttribute('height'));
+      if(w&&h) svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+    }
+    svg.removeAttribute('width'); svg.removeAttribute('height');
+    svg.style.height = CAKE_H; svg.style.width='auto'; svg.style.display='block';
+    locateFlameAndOrb(svg);
+  }
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ measureFlame(); parkCake(); }));
+}
+
+function locateFlameAndOrb(svg){
+  const flameGroups = new Set();
+  svg.querySelectorAll('path, ellipse, circle, polygon, rect').forEach(el=>{
+    let f = (el.getAttribute('fill')||'').trim();
+    if(!f){ try{ f = getComputedStyle(el).fill; }catch{} }
+    f = f.toUpperCase();
+    if(FLAME_HEX.has(f)){ flameGroups.add(el.closest('g') || el); }
+    else if(f===ORB_HEX && !orbEl){ orbEl = el; }
+  });
+  const groups = [...flameGroups];
+  if(groups.length){
+    flameWrap = document.createElementNS(SVGNS,'g');
+    flameWrap.setAttribute('id','flameWrap');
+    groups[0].parentNode.insertBefore(flameWrap, groups[0]);
+    groups.forEach(g=>flameWrap.appendChild(g));
+  }
+}
+function measureFlame(){ if(!flameWrap) return; try{ const b=flameWrap.getBBox(); fcx=b.x+b.width/2; fby=b.y+b.height; }catch{} }
+const SLIDE_MS = 1500;        // phase 1: slide up
+const ZOOM_MS  = 1100;        // phase 2: zoom into the candle
+const FLAME_Y  = 0.3;        // flame's vertical spot after zoom (0 = top, 1 = bottom)
+const WHOLE_Y  = 0.3;        // whole-cake vertical center in phase 1 (0.5 = dead center; LOWER = higher on screen)
+const ZOOM     = 2;        // how far we zoom into the candle (lower = more cake stays visible)
+
+/* flame center in the viewport with the cake UNtransformed; also sets transform-origin to it.
+   Measured from geometry (getBBox→CTM), ignoring the flicker wobble, so it never drifts. */
+function calcFlame(){
+  const host=$('#cakeHost');
+  host.style.transition='none'; host.style.transform='none'; host.style.transformOrigin='';
+  host.getBoundingClientRect();
+  const svg = host.querySelector('svg');
+  let vx, vy, saved=null;
+  if(svg && flameWrap){
+    try{
+      saved = flameWrap.getAttribute('transform');
+      if(saved!==null) flameWrap.removeAttribute('transform');     // ignore flicker wobble while measuring
+      const bb = flameWrap.getBBox();
+      const p = svg.createSVGPoint(); p.x = bb.x + bb.width/2; p.y = bb.y + bb.height/2;
+      const s = p.matrixTransform(flameWrap.getScreenCTM());
+      vx=s.x; vy=s.y;
+    }catch(e){}
+    if(saved!==null) flameWrap.setAttribute('transform', saved);
+  }
+  if(vx===undefined){ const r=(flameWrap||host).getBoundingClientRect(); vx=r.left+r.width/2; vy=r.top+r.height/2; }
+  const hr = host.getBoundingClientRect();
+  flameVX=vx; flameVY=vy;
+  host.style.transformOrigin = `${vx-hr.left}px ${vy-hr.top}px`;
+}
+function zoomTransform(){      // scale about the flame, then slide the flame to its target spot
+  return `translate(${innerWidth/2 - flameVX}px, ${innerHeight*FLAME_Y - flameVY}px) scale(${ZOOM})`;
+}
+function wholeTransform(){     // phase 1: whole cake, raised per WHOLE_Y
+  return `translate(0px, ${(WHOLE_Y - 0.5)*innerHeight}px) scale(1.3)`;
+}
+function parkCake(){           // whole cake, parked just below the screen
+  calcFlame();
+  const host=$('#cakeHost');
+  host.style.transition='none';
+  host.style.transform = `translate(0px, ${innerHeight}px) scale(1)`;
+  host.getBoundingClientRect();
+  $('#stage').style.opacity='1';
+}
+async function revealCake(){   // phase 1: slide to centered whole cake → phase 2: zoom into the candle
+  if(cakeShown) return; cakeShown=true;
+  const host=$('#cakeHost');
+  host.style.transition = `transform ${SLIDE_MS}ms var(--ease)`;
+  host.style.transform = wholeTransform();                       // whole cake, raised per WHOLE_Y
+  await delay(SLIDE_MS);                                  // whole cake stays for ~2s before zoom
+  if(!$('#r-blow').classList.contains('active') || extinguished) return;
+  zoomed = true;
+  host.style.transition = `transform ${ZOOM_MS}ms var(--ease)`;
+  host.style.transform = zoomTransform();                        // zoom into the candle
+  await delay(ZOOM_MS + 150);
+}
+function reframe(){            // resize: keep whatever phase we're in correctly framed
+  calcFlame();
+  const host=$('#cakeHost'); host.style.transition='none';
+  if(zoomed)         host.style.transform = zoomTransform();
+  else if(cakeShown) host.style.transform = wholeTransform();
+  else               host.style.transform = `translate(0px, ${innerHeight}px) scale(1)`;
+}
+/* begin blow detection: just start the loop (no calibration — a held pout works right away) */
+async function beginTracking(){
+  if(!$('#r-blow').classList.contains('active') || extinguished) return;
+  if(faceReady) $('#blowHint').innerHTML = 'Pucker your lips and <b>blow</b>';
+  startBlow();
+}
+addEventListener('resize', ()=>{ if($('#r-blow').classList.contains('active')) reframe(); });
+
+let blowMode=false, blowProgress=0, extinguished=false, dir=1, lastFlip=0;
+function animTick(t){
+  if(!extinguished && flameWrap){
+    if(t-lastFlip > (reduce?420:120)){ dir*=-1; lastFlip=t; }
+    const k = blowMode ? (1 - 0.85*Math.min(1,blowProgress)) : 1;
+    const wob = reduce ? 1 : (0.97 + Math.sin(t/90)*0.03);
+    const sx = (dir * k).toFixed(3);          // flip + shrink horizontally
+    const sy = (k * wob).toFixed(3);          // shrink vertically
+    flameWrap.setAttribute('transform',
+      `translate(${fcx} ${fby}) scale(${sx} ${sy}) translate(${-fcx} ${-fby})`);
+  }
+  if(!extinguished && orbEl){
+    orbEl.style.opacity = ((0.85 + (reduce?0:Math.sin(t/130)*0.15)) * (1 - blowProgress*0.7)).toFixed(3);
+  }
+  requestAnimationFrame(animTick);
+}
+requestAnimationFrame(animTick);
+
+$('#allowCam').addEventListener('click', initCamera);
+$('#useHold').addEventListener('click', ()=>startHold(false));
+function presentCoach(){ $('#permGate').classList.add('hidden'); $('#blowCoach').classList.remove('hidden'); $('#blowCoach').classList.add('pending'); }
+
+function showCamStatus(t){ const s=$('#camStatus'); s.classList.remove('hidden','done'); $('#camStatusText').textContent=t; }
+function setCamStatusDone(t){ $('#camStatus').classList.add('done'); $('#camStatusText').textContent=t; }
+function hideCamStatus(){ $('#camStatus').classList.add('hidden'); }
+
+let faceLandmarker=null, faceReady=false, sensorStream=null, lastPout=0, lastFaceTs=0, lastDetectTs=0;
+const video = $('#cam');
+
+async function loadFace(){
+  if(faceLandmarker) return;
+  const { FaceLandmarker, FilesetResolver } =
+    await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/+esm');
+  const fileset = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm');
+  const opts = { baseOptions:{ modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task', delegate:'GPU' },
+                 outputFaceBlendshapes:true, runningMode:'VIDEO', numFaces:1 };
+  try{ faceLandmarker = await FaceLandmarker.createFromOptions(fileset, opts); }
+  catch(e){ opts.baseOptions.delegate='CPU'; faceLandmarker = await FaceLandmarker.createFromOptions(fileset, opts); }
+}
+
+async function initCamera(){
+  $('#permGate').classList.add('hidden');
+  showCamStatus('Setting up the camera…');
+  const t0 = performance.now();
+  try{
+    sensorStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:320, height:240 } });
+    video.srcObject = sensorStream; await video.play();
+    await withTimeout(loadFace(), 12000); faceReady = true;   // don't hang forever if the model CDN stalls
+    const wait = 700 - (performance.now() - t0);       // let "Setting up…" register
+    if(wait > 0) await delay(wait);
+    hideCamStatus();
+    presentCoach();                                     // container appears now, contents stay hidden
+    $('#keyHint').textContent = isTouch ? 'Or press and hold anywhere to blow' : 'Press and hold any key to blow the candle';  // reserve its space now
+    await revealCake();                                 // slide → 2s → zoom (no message/bar yet)
+    if(!$('#r-blow').classList.contains('active') || extinguished) return;
+    $('#blowCoach').classList.remove('pending');        // message + bar + key-hint fade in (no size change)
+    holdEnabled = true; if(isTouch) holdPointerEnabled = true;   // key-hold (and touch-hold) as an alternative
+    await beginTracking();
+  }catch(err){ hideCamStatus(); stopSensors(); startHold(true); }
+}
+
+function readPout(){
+  if(!faceReady || video.readyState < 2 || !video.videoWidth) return lastPout*0.9;
+  const now = performance.now();
+  if(now - lastDetectTs < 40) return lastPout;          // throttle to ~25fps (camera frame rate); reuse last
+  lastDetectTs = now;
+  const ts = Math.max(now, lastFaceTs + 1); lastFaceTs = ts;
+  let res; try{ res = faceLandmarker.detectForVideo(video, ts); }catch(e){ return lastPout; }
+  const bs = res && res.faceBlendshapes && res.faceBlendshapes[0];
+  if(bs){
+    let f=0;
+    for(const c of bs.categories){ if(c.categoryName==='mouthFunnel'){ f=c.score; break; } }  // blow = funnel shape; ~0 at rest
+    lastPout = f; return f;
+  }
+  lastPout = 0; return 0;
+}
+
+let holdActive=false, holdEnabled=false, holdPointerEnabled=false;
+const isTouch = matchMedia('(hover: none) and (pointer: coarse)').matches;
+const blowActive = ()=> $('#r-blow').classList.contains('active');
+/* keys (desktop) gated by holdEnabled; pointer/touch gated by holdPointerEnabled */
+function keyHoldOn(e){ if(!holdEnabled || !blowActive()) return; if(e.repeat) return; e.preventDefault(); holdActive=true; }
+function keyHoldOff(){ if(!holdEnabled) return; holdActive=false; }
+function ptrHoldOn(){ if(!holdPointerEnabled || !blowActive()) return; holdActive=true; }
+function ptrHoldOff(){ if(!holdPointerEnabled) return; holdActive=false; }
+addEventListener('keydown', (e)=>{ if(!isTouch) keyHoldOn(e); });
+addEventListener('keyup',   ()=>{ if(!isTouch) keyHoldOff(); });
+addEventListener('pointerdown', ptrHoldOn);
+addEventListener('pointerup', ptrHoldOff);
+addEventListener('pointercancel', ptrHoldOff);
+async function startHold(fromDenied){
+  hideCamStatus();
+  presentCoach();                                     // container appears now, contents stay hidden
+  $('#holdBtn').classList.add('hidden');
+  await revealCake();                                 // reveal/zoom with no message/bar
+  if(!$('#r-blow').classList.contains('active') || extinguished) return;
+  $('#blowCoach').classList.remove('pending');        // message + bar fade in
+  holdEnabled = true; holdPointerEnabled = true;      // tracking enabled only after the zoom
+  $('#blowHint').innerHTML = isTouch
+    ? 'Press &amp; hold <b>anywhere</b> to blow'
+    : 'Press &amp; hold <b>any key</b> to blow';
+  beginTracking();
+}
+
+let blowRaf=null, poutStrength=0, prev=performance.now();
+function startBlow(){ blowMode=true; prev=performance.now(); if(!blowRaf) blowRaf=requestAnimationFrame(blowLoop); }
+function blowLoop(t){
+  if(extinguished){ blowRaf=null; return; }
+  const dt = Math.min(50, t-prev); prev=t;
+  poutStrength = poutStrength*0.65 + readPout()*0.35;
+  const blowing = holdActive || (faceReady && poutStrength > BLOW_THRESH);
+  blowProgress = clamp(blowProgress + (blowing ? dt/BLOW_MS : -dt/500), 0, 1);
+  $('#barFill').style.width = (blowProgress*100).toFixed(1)+'%';
+  if(faceReady && !holdActive) $('#blowHint').innerHTML = blowing ? 'Keep going…' : 'Pucker your lips and <b>blow</b>';
+  if(blowProgress >= 1){ return snuff(); }
+  blowRaf = requestAnimationFrame(blowLoop);
+}
+
+function snuff(){
+  if(extinguished) return; extinguished=true; holdActive=false;
+  if(blowRaf){ cancelAnimationFrame(blowRaf); blowRaf=null; }
+  $('#blowCoach').classList.add('pending');            // bar + text fade out; cream band stays
+  if(flameWrap){
+    flameWrap.style.transition='opacity .5s, transform .5s'; flameWrap.style.opacity='0';
+    flameWrap.setAttribute('transform', `translate(${fcx} ${fby}) scale(0.05 0.05) translate(${-fcx} ${-fby})`);
+  }
+  if(orbEl){ orbEl.style.transition='opacity .6s'; orbEl.style.opacity='0'; }
+  stopSensors();
+  setTimeout(reveal, 680);
+}
+function stopSensors(){ if(sensorStream){ try{ sensorStream.getTracks().forEach(t=>t.stop()); }catch{} sensorStream=null; } faceReady=false; }
+
+function reveal(){
+  const blowView=$('#r-blow'), rev=$('#r-reveal');
+  blowView.style.transition='opacity .9s ease'; blowView.style.opacity='0';
+  spawnConfetti();
+  setTimeout(()=>{
+    blowView.classList.remove('active'); blowView.style.display='none';
+    rev.classList.add('show');
+    requestAnimationFrame(()=>{
+      $('#revealcake').classList.add('in');
+      $('#revealLetter').classList.add('in');
+    });
+  }, 900);
+}
+const CONFETTI_COUNT  = 300;   // how many pieces — raise for even more
+const CONFETTI_COLORS = ['#F7C5CE','#F9D9A7','#CDE7D8','#D9C7EC','#FBE7A8','#C3DCEC','#F6C9D9','#CFE8D3','#EFC9DE'];
+function spawnConfetti(){
+  if(reduce) return;
+  const frag = document.createDocumentFragment();
+  for(let i=0;i<CONFETTI_COUNT;i++){
+    const c = document.createElement('div'); c.className='confetti';
+    const round = Math.random() < 0.45;
+    const size  = 6 + Math.random()*10;
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.width  = size + 'px';
+    c.style.height = (round ? size : size*0.45 + Math.random()*size) + 'px';   // dots + strips
+    c.style.background = CONFETTI_COLORS[(Math.random()*CONFETTI_COLORS.length)|0];
+    c.style.borderRadius = round ? '50%' : '1px';
+    c.style.setProperty('--dx', (Math.random()*2-1)*28 + 'vw');                  // sideways drift
+    c.style.setProperty('--rot', (Math.random()*1080 - 540) + 'deg');           // spin
+    const dur = 3 + Math.random()*3, delay = Math.random()*1.4;
+    c.style.animation = `confettiFall ${dur}s ${delay}s cubic-bezier(.22,.6,.36,1) forwards`;
+    setTimeout(()=>c.remove(), (dur+delay)*1000+300);
+    frag.appendChild(c);
+  }
+  document.body.appendChild(frag);
+}
+
+function b64encode(s){ return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function b64decode(s){ s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4)s+='='; return decodeURIComponent(escape(atob(s))); }
+function decodeHash(){
+  const m = location.hash.match(/g=([^&]+)/); if(!m) return null;
+  try{
+    const o=JSON.parse(b64decode(m[1]));
+    const signTop = o.s||''; const signName = (o.s2!=null) ? o.s2 : '';
+    const sign = signName ? (signTop + '\n' + signName) : signTop;
+    return { cake:+o.c||1, greeting:o.g||'', body:o.b||'', signTop, signName, sign };
+  }catch{ return null; }
+}
+</script>
+</body>
+</html>
