@@ -125,8 +125,8 @@ h1{font-family:var(--serif); font-weight:600; font-size:clamp(28px,7vw,42px); li
 /* add class="float" to any cake element you want to bob */
 .float{animation:cakeFloat 3.2s ease-in-out infinite}
 @keyframes cakeFloat{
-  0%,100%{transform:translateY(0)}
-  50%    {transform:translateY(-10px)}
+  0%,100%{transform:translateY(-2px)}
+  50%    {transform:translateY(7px)}
 }
 @media (prefers-reduced-motion:reduce){ .float{animation:none} }
 
@@ -281,7 +281,8 @@ h1{font-family:var(--serif); font-weight:600; font-size:clamp(28px,7vw,42px); li
 .ready-letter .sign{font-size:17px; margin-top:auto; text-align:right}
 .copylink{display:flex; align-items:center; justify-content:center; flex:0 0 auto;
   background:none; border:0; border-left:1.4px solid var(--ink); cursor:pointer;
-  font-family:var(--serif); font-style:italic; font-size:16px; color:var(--ink-2);
+  font-family:var(--sans); font-size:12px; color:var(--ink);letter-spacing: .26em;
+    text-transform: uppercase;
   padding:0 var(--space-4); min-width:84px; white-space:nowrap;
   transition:color .25s ease, background-color .25s ease}
 .copylink:hover{color:var(--ink); background:rgba(27,26,23,.05)}
@@ -366,10 +367,11 @@ h1{font-family:var(--serif); font-weight:600; font-size:clamp(28px,7vw,42px); li
   </header>
   <div class="letter-wrap">
     <div class="letter rise d3" id="letter-edit">
-      <div class="ed greet rise d3" contenteditable="true" data-ph="Dear Alex," data-max="26"></div>
-      <div class="ed body rise d4" contenteditable="true" data-ph="Wishing you the brightest, happiest birthday. Thank you for being exactly you. Here's a little cake to wish on, with hopes that this year brings you every good thing." data-max="240"></div>
+      <div class="ed greet rise d3" contenteditable="true" data-ph="Dear A," data-max="26"></div>
+      <div class="ed body rise d4" contenteditable="true" data-ph="Happy birthday! Today calls for cake, a little extra sparkle, and absolutely zero responsibilities. Make a wish, grab the slice with the most frosting, and soak up all the love coming your way. Here's to a whole year of good things. You deserve every one of them.
+data-max="240"></div>
       <div class="ed sign signtop rise d5" id="sign-top" contenteditable="true" data-ph="With love," data-max="15"></div>
-      <div class="ed sign signname rise d5" id="sign-name" contenteditable="true" data-ph="Sam" data-max="15"></div>
+      <div class="ed sign signname rise d5" id="sign-name" contenteditable="true" data-ph="T" data-max="15"></div>
     </div>
   </div>
   <div class="btnrow rise d6">
